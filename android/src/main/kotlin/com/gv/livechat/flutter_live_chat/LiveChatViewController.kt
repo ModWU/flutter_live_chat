@@ -26,7 +26,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
     private val activity: Activity = PluginContext.activity as Activity;
     private val chatWindowView: ChatWindowView = ChatWindowView(activity);//ChatWindowView.createAndAttachChatWindowInstance(activity)
     private val notInitializedView: TextView = TextView(activity);
-    private val methodChannel: MethodChannel = MethodChannel(messenger, "LiveChat")
+    private val methodChannel: MethodChannel = MethodChannel(messenger, "LiveChat_$viewId")
 
    // private var configuration: ChatWindowConfiguration? = null
 
@@ -64,7 +64,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
                 chatWindowView.setUpListener(this)
                 chatWindowView.initialize()
 
-                isInitialized = true;
+                isInitialized = true
                 methodChannel.invokeMethod("onInitialized", mapOf(
                         "isSuccess" to true,
                         "message" to "Initialization succeeded."

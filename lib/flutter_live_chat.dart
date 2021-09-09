@@ -9,15 +9,18 @@ enum CallbackType {
 typedef LiveChatCallback = void Function(CallbackType type, dynamic arguments);
 
 class FlutterLiveChat {
-  static const MethodChannel _channel =
-      const MethodChannel('LiveChat');
 
-  static Future<void> showChatWindow() async {
-    await _channel.invokeMethod('showChatWindow');
+  static const Map<int, MethodChannel> _channelMap = {};
+
+  static Future<void> showChatWindow(int viewId) async {
+    await _channelMap[viewId]!.invokeMethod('showChatWindow');
   }
 
-  static void setListener(LiveChatCallback callback) {
-    _channel.setMethodCallHandler((MethodCall call) async {
+  static void addListener(int viewId, LiveChatCallback callback) {
+    final MethodChannel channel = MethodChannel('LiveChat_$viewId');
+    _channelMap[viewId] = channel;
+
+    channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'onInitialized':
           callback(CallbackType.onInitialized, call.arguments);
@@ -30,6 +33,10 @@ class FlutterLiveChat {
           break;
       }
     });
+  }
+
+  static MethodChannel? removeListener(int viewId) {
+    return _channelMap.remove(viewId);
   }
 
   /*static Future<String> get platformVersion async {

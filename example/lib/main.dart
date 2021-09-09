@@ -44,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _androidViewController = PlatformViewsService.initSurfaceAndroidView(
-      id: 0,
+      id: hashCode,
       viewType: "live_chat_view",
       layoutDirection: TextDirection.ltr,
       creationParams: {
@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     _androidViewController.create();
 
-    FlutterLiveChat.setListener((CallbackType type, dynamic arguments) {
+    FlutterLiveChat.addListener(hashCode, (CallbackType type, dynamic arguments) {
       switch (type) {
         case CallbackType.onInitialized:
           final bool isSuccess = arguments['isSuccess'];
@@ -98,12 +98,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    FlutterLiveChat.removeListener(hashCode);
     _androidViewController.dispose();
     super.dispose();
   }
 
   void _showLiveChat() {
-    FlutterLiveChat.showChatWindow();
+    FlutterLiveChat.showChatWindow(hashCode);
   }
 
   // return new ChatWindowConfiguration("1520", "77", "Android Widget Example", "985477819@qq.com", null);
