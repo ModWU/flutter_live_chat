@@ -8,9 +8,10 @@ typedef LiveChatCallback = void Function(CallbackType type, dynamic arguments);
 
 class FlutterLiveChat {
 
-  FlutterLiveChat(int viewId): channel = MethodChannel('LiveChat_$viewId');
+  FlutterLiveChat(this.viewId);
 
-  final MethodChannel channel;
+  final int viewId;
+  late final MethodChannel channel= MethodChannel('LiveChat_$viewId');
 
   Future<void> showChatWindow() async {
     await channel.invokeMethod('showChatWindow');
