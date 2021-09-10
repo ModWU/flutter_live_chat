@@ -10,7 +10,7 @@ typedef LiveChatCallback = void Function(CallbackType type, dynamic arguments);
 
 class FlutterLiveChat {
 
-  static const Map<int, MethodChannel> _channelMap = {};
+  static Map<int, MethodChannel> _channelMap = {};
 
   static Future<void> showChatWindow(int viewId) async {
     await _channelMap[viewId]!.invokeMethod('showChatWindow');
