@@ -2,24 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-enum CallbackType {
-  onInitialized, onNewMessage, onChatWindowVisibilityChanged
-}
+enum CallbackType { onInitialized, onNewMessage, onChatWindowVisibilityChanged }
 
 typedef LiveChatCallback = void Function(CallbackType type, dynamic arguments);
 
 class FlutterLiveChat {
 
-  static Map<int, MethodChannel> _channelMap = {};
+  FlutterLiveChat(int viewId): channel = MethodChannel('LiveChat_$viewId');
 
-  static Future<void> showChatWindow(int viewId) async {
-    await _channelMap[viewId]!.invokeMethod('showChatWindow');
+  final MethodChannel channel;
+
+  Future<void> showChatWindow() async {
+    await channel.invokeMethod('showChatWindow');
   }
 
-  static void addListener(int viewId, LiveChatCallback callback) {
-    final MethodChannel channel = MethodChannel('LiveChat_$viewId');
-    _channelMap[viewId] = channel;
-
+  void setListener(int viewId, LiveChatCallback callback) {
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'onInitialized':
@@ -33,10 +30,6 @@ class FlutterLiveChat {
           break;
       }
     });
-  }
-
-  static MethodChannel? removeListener(int viewId) {
-    return _channelMap.remove(viewId);
   }
 
   /*static Future<String> get platformVersion async {

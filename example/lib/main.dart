@@ -36,6 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late AndroidViewController _androidViewController;
 
+  late FlutterLiveChat _flutterLiveChat = FlutterLiveChat(hashCode);
+
   bool isVisible = false;
 
   int unreadCount = 0;
@@ -61,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     _androidViewController.create();
 
-    FlutterLiveChat.addListener(hashCode, (CallbackType type, dynamic arguments) {
+    _flutterLiveChat.setListener(hashCode, (CallbackType type, dynamic arguments) {
       switch (type) {
         case CallbackType.onInitialized:
           final bool isSuccess = arguments['isSuccess'];
@@ -98,13 +100,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    FlutterLiveChat.removeListener(hashCode);
     _androidViewController.dispose();
     super.dispose();
   }
 
   void _showLiveChat() {
-    FlutterLiveChat.showChatWindow(hashCode);
+    _flutterLiveChat.showChatWindow();
   }
 
   // return new ChatWindowConfiguration("1520", "77", "Android Widget Example", "985477819@qq.com", null);
