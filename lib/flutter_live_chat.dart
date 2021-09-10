@@ -16,7 +16,7 @@ class FlutterLiveChat {
     await channel.invokeMethod('showChatWindow');
   }
 
-  void setListener(int viewId, LiveChatCallback callback) {
+  void setListener(LiveChatCallback callback) {
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'onInitialized':
