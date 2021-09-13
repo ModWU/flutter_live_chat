@@ -7,6 +7,8 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
+import android.webkit.WebView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.livechatinc.inappchat.ChatWindowConfiguration
@@ -19,6 +21,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import java.util.*
+
 
 class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?) :
         PlatformView, MethodChannel.MethodCallHandler, ChatWindowEventsListener, IActivityLifecycle {
@@ -37,14 +40,13 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
     init {
         //通信
         methodChannel.setMethodCallHandler(this)
-        Log.d("kotlinDebugLog", "LiveChatViewController init => args: $args, viewId: $viewId")
+        Log.d("kotlinDebugLog", "LiveChatViewController${hashCode()} init => args: $args, viewId: $viewId")
 
-        var layoutParams: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        val layoutParams: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         notInitializedView.setGravity(Gravity.CENTER);
         notInitializedView.setLayoutParams(layoutParams);
         notInitializedView.setTextColor(activity.getResources().getColor(android.R.color.black));
         notInitializedView.setText("Initialization exception")
-
         if (args is Map<*, *>) {
             val licenceNumber: String = args["licenceNumber"] as String;
             val groupId: String = args["groupId"] as String;
@@ -81,6 +83,8 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         intent.putExtras((configuration as ChatWindowConfiguration).asBundle());
         context.startActivity(intent);
     }*/
+
+
 
     private fun markNotInitialize(message: String) {
         isInitialized = false
@@ -131,6 +135,23 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
     }
 
     override fun dispose() {
+        val webView: WebView? = chatWindowView.findViewById(R.id.chat_window_web_view)
+        Log.d("kotlinDebugLog", "dispose => webView: $webView")
+        chatWindowView.removeAllViews()
+        if (webView != null) {
+            val parent: ViewParent? = webView.parent
+            if (parent != null) {
+                (parent as ViewGroup).removeView(webView)
+            }
+            webView.stopLoading()
+            //webView.settings.javaScriptEnabled = false
+            //webView.clearHistory()
+            //webView.clearCache(true)
+            //webView.loadUrl("about:blank")
+            //-----webView.pauseTimers()
+            webView.removeJavascriptInterface("androidMobileWidget")
+            webView.removeAllViews()
+        }
     }
 
     override fun onChatWindowVisibilityChanged(visible: Boolean) {
