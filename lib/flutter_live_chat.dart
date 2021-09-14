@@ -11,7 +11,10 @@ class FlutterLiveChat {
   FlutterLiveChat(this.viewId);
 
   final int viewId;
-  late final MethodChannel channel= MethodChannel('LiveChat_$viewId');
+
+  static const String viewType = "live_chat_view";
+
+  late final MethodChannel channel = MethodChannel('LiveChat_$viewId');
 
   Future<void> showChatWindow() async {
     await channel.invokeMethod('showChatWindow');
