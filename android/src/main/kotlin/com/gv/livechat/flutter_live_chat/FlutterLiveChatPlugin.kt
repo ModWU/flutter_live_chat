@@ -1,6 +1,5 @@
 package com.gv.livechat.flutter_live_chat
 
-import android.content.Intent
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -32,7 +31,7 @@ class FlutterLiveChatPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
       PluginContext.activity = registrar.activity()
       PluginContext.context = registrar.context()
-      PluginContext.registrar = registrar;
+      PluginContext.registrar = registrar
 
     }
   }
