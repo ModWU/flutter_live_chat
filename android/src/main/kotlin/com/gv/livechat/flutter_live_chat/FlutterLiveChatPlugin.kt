@@ -1,11 +1,10 @@
 package com.gv.livechat.flutter_live_chat
 
+import android.content.Intent
 import androidx.annotation.NonNull
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -19,7 +18,6 @@ class FlutterLiveChatPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_live_chat")
     channel.setMethodCallHandler(this)
@@ -34,6 +32,8 @@ class FlutterLiveChatPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
       PluginContext.activity = registrar.activity()
       PluginContext.context = registrar.context()
+      PluginContext.registrar = registrar;
+
     }
   }
 
@@ -47,6 +47,7 @@ class FlutterLiveChatPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     PluginContext.activity = binding.activity
+    PluginContext.activityPluginBinding = binding
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
@@ -59,9 +60,12 @@ class FlutterLiveChatPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onDetachedFromActivity() {
     PluginContext.activity = null
+    PluginContext.activityPluginBinding = null
+    PluginContext.registrar = null
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
   }
+
 }

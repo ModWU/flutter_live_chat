@@ -19,16 +19,17 @@ import com.livechatinc.inappchat.models.NewMessageModel
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.platform.PlatformView
 import java.util.*
 
 
 class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?) :
-        PlatformView, MethodChannel.MethodCallHandler, ChatWindowEventsListener, IActivityLifecycle {
+        PlatformView, MethodChannel.MethodCallHandler, ChatWindowEventsListener, PluginRegistry.ActivityResultListener {
 
-    private val activity: Activity = PluginContext.activity as Activity;
-    private val chatWindowView: ChatWindowView = ChatWindowView(activity);//ChatWindowView.createAndAttachChatWindowInstance(activity)
-    private val notInitializedView: TextView = TextView(activity);
+    private val activity: Activity = PluginContext.activity as Activity
+    private val chatWindowView: ChatWindowView = ChatWindowView(activity)//ChatWindowView.createAndAttachChatWindowInstance(activity)
+    private val notInitializedView: TextView = TextView(activity)
     private val methodChannel: MethodChannel = MethodChannel(messenger, "LiveChat_$viewId")
 
    // private var configuration: ChatWindowConfiguration? = null
@@ -40,6 +41,8 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
     init {
         //通信
         methodChannel.setMethodCallHandler(this)
+        PluginContext.registrar?.addActivityResultListener(this)
+        PluginContext.activityPluginBinding?.addActivityResultListener(this)
         Log.d("kotlinDebugLog", "LiveChatViewController${hashCode()} init => args: $args, viewId: $viewId")
 
         val layoutParams: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -137,6 +140,8 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
     override fun dispose() {
         val webView: WebView? = chatWindowView.findViewById(R.id.chat_window_web_view)
         Log.d("kotlinDebugLog", "dispose => webView: $webView")
+        PluginContext.activityPluginBinding?.removeActivityResultListener(this)
+        methodChannel.setMethodCallHandler(null)
         chatWindowView.removeAllViews()
         if (webView != null) {
             val parent: ViewParent? = webView.parent
@@ -144,7 +149,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
                 (parent as ViewGroup).removeView(webView)
             }
             webView.stopLoading()
-            //webView.settings.javaScriptEnabled = false
+            webView.settings.javaScriptEnabled = false
             //webView.clearHistory()
             //webView.clearCache(true)
             //webView.loadUrl("about:blank")
@@ -194,7 +199,10 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         return false
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        Log.d("kotlinDebugLog", "onActivityResult => requestCode: $requestCode, resultCode: $resultCode")
         chatWindowView.onActivityResult(requestCode, resultCode, data)
+        return false
     }
+
 }
