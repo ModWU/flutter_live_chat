@@ -8,8 +8,14 @@
 #import "flutter_live_chat-Swift.h"
 #endif
 
+#import "LiveChatViewFactory.h"
+
 @implementation FlutterLiveChatPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftFlutterLiveChatPlugin registerWithRegistrar:registrar];
+    
+    LiveChatViewFactory *factory = [[LiveChatViewFactory alloc] initWithMessenger:registrar.messenger];
+    [registrar registerViewFactory:factory withId:@"live_chat_view"];
+    
+    [SwiftFlutterLiveChatPlugin registerWithRegistrar:registrar];
 }
 @end
