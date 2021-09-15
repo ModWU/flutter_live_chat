@@ -36,7 +36,12 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
 
     private var methodResult: MethodChannel.Result? = null
 
-    private var isInitialized: Boolean = false
+    private var isVerifiedParam: Boolean = false
+
+    private var licenceNumber: String? = null
+    private var groupId: String? = null
+    private var visitorName: String? = null
+    private var visitorEmail: String? = null
 
     init {
         //通信
@@ -63,14 +68,18 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
                 val customVariables: HashMap<String, String>? = args["customVariables"] as HashMap<String, String>?;
 
                 Log.d("kotlinDebugLog", "LiveChatViewController init => licenceNumber: $licenceNumber, groupId: $groupId, visitorName: $visitorName, visitorEmail: $visitorEmail, customVariables: $customVariables")
+                this.licenceNumber = licenceNumber
+                this.groupId = groupId
+                this.visitorName = visitorName
+                this.visitorEmail = visitorEmail
+
+                isVerifiedParam = true
 
                 val configuration = ChatWindowConfiguration(licenceNumber, groupId, visitorName ?: "", visitorEmail ?: "", customVariables ?: HashMap<String, String>())
 
                 chatWindowView.setUpWindow(configuration)
                 chatWindowView.setUpListener(this)
                 chatWindowView.initialize()
-
-                isInitialized = true
             }
         } else {
             markParameterError("Initialization failed. Parameter type must be Map.")
@@ -84,12 +93,8 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         context.startActivity(intent);
     }*/
 
-
-
     private fun markParameterError(message: String) {
-        isInitialized = false
-
-        Log.d("kotlinDebugLog", "markNotInitialize message: $message")
+        Log.d("kotlinDebugLog", "markParameterError message: $message")
         notInitializedView.setText("$message")
         methodChannel.invokeMethod("onError", mapOf(
                 "errorType" to "ParameterError",
@@ -98,19 +103,24 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         ))
     }
 
-    private fun notInitialized(result: MethodChannel.Result?) {
+    private fun notVerifiedParam(result: MethodChannel.Result?) {
         result?.error(
                 "LiveChatSDKError",
-                "LiveChatSDK is not initialized",
-                "Call 'LiveChatSDK.initialize' before this."
+                "Parameter validation error.",
+                "'licenceNumber' nor 'groupId' parameters cannot be null."
         )
+    }
+
+    private fun initialize(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "initialize")
+        methodResult = result
+        chatWindowView.initialize()
     }
 
     private fun showChatWindow(call: MethodCall, result: MethodChannel.Result) {
         Log.d("kotlinDebugLog", "showChatWindow")
         methodResult = result
         chatWindowView.showChatWindow()
-        //startChatActivity()
     }
 
     private fun hideChatWindow(call: MethodCall, result: MethodChannel.Result) {
@@ -143,12 +153,30 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         chatWindowView.reload()
     }
 
+    private fun setUpWindow(call: MethodCall, result: MethodChannel.Result) {
+        methodResult = result
+
+        val customVariables: HashMap<String, String> = HashMap()
+        if (call.arguments is Map<*, *>) {
+            val arguments: Map<*, *> = call.arguments as Map<*, *>;
+            for ((key, value) in arguments){
+                customVariables["$key"] = "$value"
+            }
+        }
+        Log.d("kotlinDebugLog", "setUpWindow => call.arguments: ${call.arguments}, customVariables: $customVariables")
+        val configuration = ChatWindowConfiguration(licenceNumber as String, groupId as String, visitorName ?: "", visitorEmail ?: "", customVariables)
+        chatWindowView.setUpWindow(configuration)
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        if (!isInitialized) {
-            notInitialized(result)
+        if (!isVerifiedParam) {
+            notVerifiedParam(result)
             return
         }
         when (call.method) {
+            "initialize" -> {
+                initialize(call, result)
+            }
             "showChatWindow" -> {
                 showChatWindow(call, result)
             }
@@ -167,6 +195,9 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
             "reload" -> {
                 reload(call, result)
             }
+            "setUpWindow" -> {
+                setUpWindow(call, result)
+            }
             else -> {
                 result.notImplemented()
             }
@@ -174,7 +205,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
     }
 
     override fun getView(): View {
-        Log.d("kotlinDebugLog", "getView isInitialized: $isInitialized, notInitializedView: $notInitializedView")
+        Log.d("kotlinDebugLog", "getView isVerifiedParam: $isVerifiedParam, notInitializedView: $notInitializedView")
         //return if (isInitialized) chatWindowView else notInitializedView
         return chatWindowView
     }

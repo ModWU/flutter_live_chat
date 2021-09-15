@@ -16,6 +16,10 @@ class FlutterLiveChat {
 
   late final MethodChannel channel = MethodChannel('LiveChat_$viewId');
 
+  Future<void> initialize() async {
+    await channel.invokeMethod('initialize');
+  }
+
   Future<void> showChatWindow() async {
     await channel.invokeMethod('showChatWindow');
   }
@@ -38,6 +42,10 @@ class FlutterLiveChat {
 
   Future<void> reload() async {
     await channel.invokeMethod('reload');
+  }
+
+  Future<void> setUpWindow(Map<String, String> customVariables) async {
+    await channel.invokeMethod('setUpWindow', customVariables);
   }
 
   void setListener(LiveChatCallback callback) {
