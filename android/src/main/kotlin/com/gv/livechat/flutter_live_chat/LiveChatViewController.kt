@@ -43,6 +43,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         methodChannel.setMethodCallHandler(this)
         PluginContext.registrar?.addActivityResultListener(this)
         PluginContext.activityPluginBinding?.addActivityResultListener(this)
+        Log.d("kotlinDebugLog", "LiveChatViewController${hashCode()} init => PluginContext.registrar: ${PluginContext.registrar}, PluginContext.activityPluginBinding: ${PluginContext.activityPluginBinding}")
         Log.d("kotlinDebugLog", "LiveChatViewController${hashCode()} init => args: $args, viewId: $viewId")
 
         val layoutParams: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
