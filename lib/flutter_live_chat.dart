@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-enum CallbackType { onInitialized, onNewMessage, onChatWindowVisibilityChanged }
+enum CallbackType { onError, onNewMessage, onChatWindowVisibilityChanged }
 
 typedef LiveChatCallback = void Function(CallbackType type, dynamic arguments);
 
@@ -20,11 +20,31 @@ class FlutterLiveChat {
     await channel.invokeMethod('showChatWindow');
   }
 
+  Future<void> hideChatWindow() async {
+    await channel.invokeMethod('hideChatWindow');
+  }
+
+  Future<bool> onBackPressed() async {
+    return await channel.invokeMethod('onBackPressed');
+  }
+
+  Future<bool> isInitialized() async {
+    return await channel.invokeMethod('isInitialized');
+  }
+
+  Future<bool> isChatLoaded() async {
+    return await channel.invokeMethod('isChatLoaded');
+  }
+
+  Future<void> reload() async {
+    await channel.invokeMethod('reload');
+  }
+
   void setListener(LiveChatCallback callback) {
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
-        case 'onInitialized':
-          callback(CallbackType.onInitialized, call.arguments);
+        case 'onError':
+          callback(CallbackType.onError, call.arguments);
           break;
         case 'onNewMessage':
           callback(CallbackType.onNewMessage, call.arguments);

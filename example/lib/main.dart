@@ -65,10 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _flutterLiveChat.setListener((CallbackType type, dynamic arguments) {
       switch (type) {
-        case CallbackType.onInitialized:
-          final bool isSuccess = arguments['isSuccess'];
-          final String message = arguments['message'];
-          print('FlutterLiveChat initialized => isSuccess: $isSuccess, message: $message');
+        case CallbackType.onError:
+          print('FlutterLiveChat onError => arguments: $arguments');
           break;
 
         case CallbackType.onNewMessage:

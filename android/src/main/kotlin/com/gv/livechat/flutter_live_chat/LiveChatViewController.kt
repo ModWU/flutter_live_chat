@@ -56,7 +56,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
             val groupId: String = args["groupId"] as String;
 
             if (licenceNumber == null || groupId == null) {
-                markNotInitialize("Initialization failed. Neither the 'licenceNumber'(=$licenceNumber) nor 'groupId'(=$groupId) parameters can be null.");
+                markParameterError("Initialization failed. Neither the 'licenceNumber'(=$licenceNumber) nor 'groupId'(=$groupId) parameters can be null.");
             } else {
                 val visitorName: String? = args["visitorName"] as String?;
                 val visitorEmail: String? = args["visitorEmail"] as String?;
@@ -71,13 +71,9 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
                 chatWindowView.initialize()
 
                 isInitialized = true
-                methodChannel.invokeMethod("onInitialized", mapOf(
-                        "isSuccess" to true,
-                        "message" to "Initialization succeeded."
-                ))
             }
         } else {
-            markNotInitialize("Initialization failed. Parameter type must be Map.")
+            markParameterError("Initialization failed. Parameter type must be Map.")
         }
     }
 
@@ -90,14 +86,15 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
 
 
 
-    private fun markNotInitialize(message: String) {
+    private fun markParameterError(message: String) {
         isInitialized = false
 
         Log.d("kotlinDebugLog", "markNotInitialize message: $message")
         notInitializedView.setText("$message")
-        methodChannel.invokeMethod("onInitialized", mapOf(
-                "isSuccess" to false,
-                "message" to message
+        methodChannel.invokeMethod("onError", mapOf(
+                "errorType" to "ParameterError",
+                "errorCode" to -1,
+                "errorDescription" to "'licenceNumber' nor 'groupId' parameters cannot be null."
         ))
     }
 
@@ -116,6 +113,35 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         //startChatActivity()
     }
 
+    private fun hideChatWindow(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "hideChatWindow")
+        methodResult = result
+        chatWindowView.hideChatWindow()
+    }
+
+    private fun onBackPressed(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "onBackPressed")
+        methodResult = result
+        result.success(chatWindowView.onBackPressed())
+    }
+
+    private fun isInitialized(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "isInitialized")
+        methodResult = result
+        result.success(chatWindowView.isInitialized)
+    }
+
+    private fun isChatLoaded(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "isChatLoaded")
+        methodResult = result
+        result.success(chatWindowView.isChatLoaded)
+    }
+
+    private fun reload(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "reload")
+        methodResult = result
+        chatWindowView.reload()
+    }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         if (!isInitialized) {
@@ -125,6 +151,21 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         when (call.method) {
             "showChatWindow" -> {
                 showChatWindow(call, result)
+            }
+            "hideChatWindow" -> {
+                hideChatWindow(call, result)
+            }
+            "onBackPressed" -> {
+                onBackPressed(call, result)
+            }
+            "isInitialized" -> {
+                isInitialized(call, result)
+            }
+            "isChatLoaded" -> {
+                isChatLoaded(call, result)
+            }
+            "reload" -> {
+                reload(call, result)
             }
             else -> {
                 result.notImplemented()
@@ -192,6 +233,11 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
 
     override fun onError(errorType: ChatWindowErrorType?, errorCode: Int, errorDescription: String?): Boolean {
         Log.d("kotlinDebugLog", "onError => errorType: $errorType, errorCode: $errorCode, errorDescription: $errorDescription")
+        methodChannel.invokeMethod("onError", mapOf(
+                "errorType" to "${errorType?.name}",
+                "errorCode" to errorCode,
+                "errorDescription" to errorDescription
+        ))
         return true
     }
 
