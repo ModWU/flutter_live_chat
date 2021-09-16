@@ -69,6 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
           print('FlutterLiveChat onError => arguments: $arguments');
           break;
 
+        case CallbackType.onUiReady:
+          print('FlutterLiveChat onUiReady');
+          break;
+
         case CallbackType.onNewMessage:
           final bool hasMessage = arguments['hasMessage'];
           final bool windowVisible = arguments['windowVisible'];

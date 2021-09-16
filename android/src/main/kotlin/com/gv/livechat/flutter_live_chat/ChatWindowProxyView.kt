@@ -5,7 +5,7 @@ import com.livechatinc.inappchat.ChatWindowView
 
 class ChatWindowProxyView(context: Context, uiReadyListener: IUiReadyListener): ChatWindowView(context) {
 
-    private var uiReadyListener :IUiReadyListener = uiReadyListener;
+    private var uiReadyListener :IUiReadyListener = uiReadyListener
 
     override fun onUiReady() {
         super.onUiReady()
