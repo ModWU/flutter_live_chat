@@ -9,7 +9,7 @@ class ChatWindowProxyView(context: Context, uiReadyListener: IUiReadyListener): 
 
     override fun onUiReady() {
         super.onUiReady()
-        uiReadyListener.onUiReady();
+        post { uiReadyListener.onUiReady() }
     }
 
 }
