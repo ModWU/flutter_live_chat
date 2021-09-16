@@ -16,10 +16,6 @@ class FlutterLiveChat {
 
   late final MethodChannel channel = MethodChannel('LiveChat_$viewId');
 
-  Future<void> initialize() async {
-    await channel.invokeMethod('initialize');
-  }
-
   Future<void> showChatWindow() async {
     await channel.invokeMethod('showChatWindow');
   }

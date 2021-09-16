@@ -22,6 +22,9 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.platform.PlatformView
 import java.util.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.jvm.isAccessible
 
 
 class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?) :
@@ -111,22 +114,37 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         )
     }
 
-    private fun initialize(call: MethodCall, result: MethodChannel.Result) {
-        Log.d("kotlinDebugLog", "initialize")
+    /*private fun initialize(call: MethodCall, result: MethodChannel.Result) {
+        Log.d("kotlinDebugLog", "initialize................")
         methodResult = result
+        val chatWindowViewClass: KClass<ChatWindowView> = ChatWindowView::class
+        chatWindowViewClass.members.forEach{
+            Log.d("kotlinDebugLog", "it.name: ${it.name}")
+            when(it.name) {
+                "initialized" -> {
+                    val kmp = it as KMutableProperty1<ChatWindowView, Boolean>
+                    kmp.isAccessible = true
+                    kmp.set(chatWindowView, false)
+                    Log.d("kotlinDebugLog", "kmp: ${kmp.get(chatWindowView)}")
+                }
+            }
+        }
         chatWindowView.initialize()
-    }
+        result.success(null)
+    }*/
 
     private fun showChatWindow(call: MethodCall, result: MethodChannel.Result) {
         Log.d("kotlinDebugLog", "showChatWindow")
         methodResult = result
         chatWindowView.showChatWindow()
+        result.success(null)
     }
 
     private fun hideChatWindow(call: MethodCall, result: MethodChannel.Result) {
         Log.d("kotlinDebugLog", "hideChatWindow")
         methodResult = result
         chatWindowView.hideChatWindow()
+        result.success(null)
     }
 
     private fun onBackPressed(call: MethodCall, result: MethodChannel.Result) {
@@ -151,6 +169,7 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         Log.d("kotlinDebugLog", "reload")
         methodResult = result
         chatWindowView.reload()
+        result.success(null)
     }
 
     private fun setUpWindow(call: MethodCall, result: MethodChannel.Result) {
@@ -163,10 +182,12 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
                 customVariables["$key"] = "$value"
             }
         }
-        Log.d("kotlinDebugLog", "setUpWindow => call.arguments: ${call.arguments}, customVariables: $customVariables")
+        Log.d("kotlinDebugLog", "setUpWindow 12=> call.arguments: ${call.arguments}, customVariables: $customVariables")
         val configuration = ChatWindowConfiguration(licenceNumber as String, groupId as String, visitorName ?: "", visitorEmail ?: "", customVariables)
         chatWindowView.setUpWindow(configuration)
+        result.success(null)
     }
+
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         if (!isVerifiedParam) {
@@ -174,9 +195,9 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
             return
         }
         when (call.method) {
-            "initialize" -> {
+            /*"initialize" -> {
                 initialize(call, result)
-            }
+            }*/
             "showChatWindow" -> {
                 showChatWindow(call, result)
             }
