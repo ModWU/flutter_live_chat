@@ -22,10 +22,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.platform.PlatformView
 import java.util.*
-import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.jvm.isAccessible
-
 
 class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?) :
         PlatformView, MethodChannel.MethodCallHandler, ChatWindowEventsListener, PluginRegistry.ActivityResultListener {
