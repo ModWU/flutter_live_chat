@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-enum CallbackType { onError, onNewMessage, onChatWindowVisibilityChanged }
+enum CallbackType { onError, onNewMessage, onChatWindowVisibilityChanged, onUiReady }
 
 typedef LiveChatCallback = void Function(CallbackType type, dynamic arguments);
 
@@ -55,6 +55,9 @@ class FlutterLiveChat {
           break;
         case 'onChatWindowVisibilityChanged':
           callback(CallbackType.onChatWindowVisibilityChanged, call.arguments);
+          break;
+        case 'onUiReady':
+          callback(CallbackType.onUiReady, call.arguments);
           break;
       }
     });

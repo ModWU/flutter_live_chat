@@ -24,10 +24,10 @@ import io.flutter.plugin.platform.PlatformView
 import java.util.*
 
 class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?) :
-        PlatformView, MethodChannel.MethodCallHandler, ChatWindowEventsListener, PluginRegistry.ActivityResultListener {
+        PlatformView, MethodChannel.MethodCallHandler, ChatWindowEventsListener, PluginRegistry.ActivityResultListener, IUiReadyListener {
 
     private val activity: Activity = PluginContext.activity as Activity
-    private val chatWindowView: ChatWindowView = ChatWindowView(activity)//ChatWindowView.createAndAttachChatWindowInstance(activity)
+    private val chatWindowView: ChatWindowProxyView = ChatWindowProxyView(activity, this)//ChatWindowView.createAndAttachChatWindowInstance(activity)
     private val notInitializedView: TextView = TextView(activity)
     private val methodChannel: MethodChannel = MethodChannel(messenger, "LiveChat_$viewId")
 
@@ -298,6 +298,10 @@ class LiveChatViewController(messenger: BinaryMessenger, viewId: Int, args: Any?
         Log.d("kotlinDebugLog", "onActivityResult => requestCode: $requestCode, resultCode: $resultCode")
         chatWindowView.onActivityResult(requestCode, resultCode, data)
         return false
+    }
+
+    override fun onUiReady() {
+        methodChannel.invokeMethod("onUiReady", null)
     }
 
 }
